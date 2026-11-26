@@ -49,3 +49,30 @@ export const getMemoryById = async (id) => {
 
   return result;
 };
+
+export const searchMemories = async (query) => {
+  try {
+    // Step 1: Convert question into embedding
+    const queryVector = await generateEmbedding(query);
+
+    // Step 2: Search using the new Qdrant query API
+    const response = await qdrant.query(COLLECTION_NAME, {
+      query: queryVector,
+      limit: 3,
+      with_payload: true,
+      with_vector: false,
+    });
+
+    // Step 3: Extract matching points
+    return response.points.map((result) => ({
+      id: result.id,
+      score: result.score,
+      text: result.payload.text,
+      topic: result.payload.topic,
+      sourceType: result.payload.sourceType,
+    }));
+  } catch (error) {
+    console.error("Semantic search failed:", error);
+    throw error;
+  }
+};
