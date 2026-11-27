@@ -6,16 +6,16 @@ export const createMemory = async (req, res) => {
     const { text, topic, sourceType } = req.body;
 
     // Validate input
-    if (!text || !text.trim()) {
+    if (typeof text !== "string" || !text.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Memory text is required.",
+        message: "Memory text must be a non-empty string.",
       });
     }
 
     // Temporary user ID for development.
     // Later, authentication middleware will provide the real user ID.
-    const userId = req.body.userId;
+    const userId = req.user.userId;
 
     if (!userId) {
       return res.status(400).json({
@@ -45,13 +45,14 @@ export const createMemory = async (req, res) => {
 // POST: Search existing memories
 export const searchMemory = async (req, res) => {
   try {
-    const { query, userId } = req.body;
+    const { query } = req.body;
+    const userId = req.user.userId;
 
     // Validate input
-    if (!query || !query.trim()) {
+    if (typeof query !== "string" || !query.trim()) {
       return res.status(400).json({
         success: false,
-        message: "Search query is required.",
+        message: "Search query must be a non-empty string.",
       });
     }
 

@@ -8,6 +8,7 @@ import qdrant from "./config/qdrant.js";
 import { createRecallItCollection } from "./config/createCollection.js";
 import { createRecallItIndexes } from "./config/createIndexes.js";
 import memoryRoutes from "./routes/memoryRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use("/api/auth", authRoutes);
 app.use("/api/memories", memoryRoutes);
 
 const PORT = process.env.PORT || 5000;
