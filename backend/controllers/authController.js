@@ -16,7 +16,11 @@ export const registerUser = async (req, res) => {
     }
 
     // 2. Check whether user already exists
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (existingUser) {
       return res.status(409).json({
@@ -30,8 +34,8 @@ export const registerUser = async (req, res) => {
 
     // 4. Create user
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
     });
 
@@ -119,6 +123,36 @@ export const loginUser = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Login failed.",
+    });
+  }
+};
+
+// GET: Get currently logged-in user
+export const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select("_id name email");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.error("Get current user error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch user.",
     });
   }
 };
