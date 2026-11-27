@@ -3,27 +3,34 @@ import { randomUUID } from "node:crypto";
 import qdrant from "../../config/qdrant.js";
 import { generateEmbedding } from "../embeddings/embeddingService.js";
 
-// IMPORTANT: Use the exact collection name from createCollection.js
+// Use the exact collection name from createCollection.js
 const COLLECTION_NAME = "recallit_knowledge";
 
-export const saveMemory = async (text) => {
+// Save a new memory in Qdrant
+export const saveMemory = async (
+  text,
+  userId,
+  topic = "General",
+  sourceType = "note",
+) => {
   try {
     // Step 1: Generate embedding
     const vector = await generateEmbedding(text);
 
-    // Step 2: Create a unique ID
+    // Step 2: Generate unique ID
     const id = randomUUID();
 
-    // Step 3: Store vector and payload in Qdrant
+    // Step 3: Save vector and metadata in Qdrant
     await qdrant.upsert(COLLECTION_NAME, {
       points: [
         {
           id,
           vector,
           payload: {
+            userId,
             text,
-            topic: "React",
-            sourceType: "note",
+            topic,
+            sourceType,
             createdAt: new Date().toISOString(),
           },
         },
@@ -41,35 +48,55 @@ export const saveMemory = async (text) => {
 
 // Retrieve a stored memory using its ID
 export const getMemoryById = async (id) => {
-  const result = await qdrant.retrieve(COLLECTION_NAME, {
-    ids: [id],
-    with_payload: true,
-    with_vector: false,
-  });
-
-  return result;
-};
-
-export const searchMemories = async (query) => {
   try {
-    // Step 1: Convert question into embedding
-    const queryVector = await generateEmbedding(query);
-
-    // Step 2: Search using the new Qdrant query API
-    const response = await qdrant.query(COLLECTION_NAME, {
-      query: queryVector,
-      limit: 3,
+    const result = await qdrant.retrieve(COLLECTION_NAME, {
+      ids: [id],
       with_payload: true,
       with_vector: false,
     });
 
-    // Step 3: Extract matching points
+    return result;
+  } catch (error) {
+    console.error("Error retrieving memory:", error);
+    throw error;
+  }
+};
+
+// Search memories belonging to a particular user
+export const searchMemories = async (query, userId) => {
+  try {
+    // Step 1: Convert question into embedding
+    const queryVector = await generateEmbedding(query);
+
+    // Step 2: Search only this user's memories
+    const response = await qdrant.query(COLLECTION_NAME, {
+      query: queryVector,
+      limit: 3,
+
+      filter: {
+        must: [
+          {
+            key: "userId",
+            match: {
+              value: userId,
+            },
+          },
+        ],
+      },
+
+      with_payload: true,
+      with_vector: false,
+    });
+
+    // Step 3: Return matching memories
     return response.points.map((result) => ({
       id: result.id,
       score: result.score,
+      userId: result.payload.userId,
       text: result.payload.text,
       topic: result.payload.topic,
       sourceType: result.payload.sourceType,
+      createdAt: result.payload.createdAt,
     }));
   } catch (error) {
     console.error("Semantic search failed:", error);

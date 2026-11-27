@@ -1,23 +1,49 @@
 import { saveMemory, searchMemories } from "./qdrantService.js";
 
 const main = async () => {
-  // Save three sample memories
-  await saveMemory("React components help us build reusable interfaces.");
+  const userA = "user_123";
+  const userB = "user_456";
 
-  await saveMemory("JavaScript promises handle asynchronous operations.");
-
-  await saveMemory("MongoDB stores information in collections and documents.");
-
-  console.log("\nAll memories saved!");
-
-  // Search using different wording
-  const results = await searchMemories(
-    "How can I create reusable UI elements?",
+  // User A memories
+  await saveMemory(
+    "React components help us build reusable interfaces.",
+    userA,
+    "React",
+    "note",
   );
 
-  console.log("\nSemantic search results:");
+  await saveMemory(
+    "JavaScript promises handle asynchronous operations.",
+    userA,
+    "JavaScript",
+    "note",
+  );
 
-  console.log(JSON.stringify(results, null, 2));
+  // User B memory
+  await saveMemory(
+    "Python is used for machine learning and data science.",
+    userB,
+    "Machine Learning",
+    "note",
+  );
+
+  console.log("\n--- User A Search ---");
+
+  const userAResults = await searchMemories(
+    "How do I build reusable UI?",
+    userA,
+  );
+
+  console.log(JSON.stringify(userAResults, null, 2));
+
+  console.log("\n--- User B Search ---");
+
+  const userBResults = await searchMemories(
+    "What language can I use for machine learning?",
+    userB,
+  );
+
+  console.log(JSON.stringify(userBResults, null, 2));
 };
 
 main().catch(console.error);
