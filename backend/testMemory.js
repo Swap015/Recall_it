@@ -1,40 +1,44 @@
 import "dotenv/config";
 import mongoose from "mongoose";
-import { randomUUID } from "node:crypto";
 
-import Memory from "./models/Memory.js";
+import { saveMemory, searchMemories } from "./services/memoryService.js";
 
 const testMemory = async () => {
   try {
-    // Step 1: Connect to MongoDB
     await mongoose.connect(process.env.MONGODB_URI);
-
     console.log("MongoDB connected!");
 
-    // Temporary user ID for testing.
-    // Later, authentication will provide the real user ID.
     const userId = new mongoose.Types.ObjectId();
 
-    // Step 2: Create a memory
-    const memory = await Memory.create({
+    // Save one memory
+    const memory = await saveMemory(
+      "React components help us build reusable interfaces.",
       userId,
-      text: "React components help us build reusable interfaces.",
-      topic: "React",
-      sourceType: "note",
-      qdrantPointId: randomUUID(),
+      "React",
+      "note",
+    );
+
+    console.log("\nMemory saved successfully!");
+    console.log("MongoDB ID:", memory._id);
+    console.log("Qdrant ID:", memory.qdrantPointId);
+
+    // Search memories
+    const results = await searchMemories(
+      "How do React components work?",
+      userId,
+    );
+
+    console.log("\nSearch results:");
+
+    results.forEach((result, index) => {
+      console.log(`\nResult ${index + 1}`);
+      console.log("Score:", result.score);
+      console.log("Text:", result.memory.text);
+      console.log("Topic:", result.memory.topic);
     });
-
-    console.log("\nMemory saved in MongoDB!");
-
-    // Step 3: Retrieve the saved memory
-    const savedMemory = await Memory.findById(memory._id);
-
-    console.log("\nRetrieved memory:");
-    console.log(savedMemory);
   } catch (error) {
-    console.error("MongoDB memory test failed:", error);
+    console.error("Test failed:", error);
   } finally {
-    // Step 4: Close MongoDB connection
     await mongoose.disconnect();
     console.log("\nMongoDB disconnected!");
   }
