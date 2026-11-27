@@ -95,11 +95,18 @@ export const loginUser = async (req, res) => {
       expiresIn: "15m",
     });
 
+    res.cookie("accessToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000,
+      path: "/",
+    });
+
     // 5. Send response
     return res.status(200).json({
       success: true,
       message: "Login successful!",
-      token,
       user: {
         id: user._id,
         name: user.name,
@@ -115,5 +122,3 @@ export const loginUser = async (req, res) => {
     });
   }
 };
-
-

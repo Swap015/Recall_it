@@ -4,22 +4,12 @@ import User from "../models/User.js";
 const authMiddleware = async (req, res, next) => {
   try {
     // 1. Get authorization header
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        success: false,
-        message: "Access denied. No token provided.",
-      });
-    }
-
-    // 2. Extract token
-    const token = authHeader.split(" ")[1];
+    const token = req.cookies?.accessToken;
 
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Access token is missing.",
+        message: "Access denied. Please log in.",
       });
     }
 

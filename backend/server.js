@@ -3,6 +3,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 
 import qdrant from "./config/qdrant.js";
 import { createRecallItCollection } from "./config/createCollection.js";
@@ -14,6 +15,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // Test route
 app.get("/", (req, res) => {
