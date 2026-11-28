@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState } from "react";
 import AuthContext from "./authContext";
 import api from "../services/api";
@@ -11,6 +12,7 @@ const AuthProvider = ({ children }) => {
         try {
             const response = await api.get("/auth/me");
             setUser(response.data.user);
+            console.log("loginnnnnn: ", response.data.user)
         } catch (error) {
             console.log("Authentication check failed:", error);
             setUser(null);
@@ -19,35 +21,18 @@ const AuthProvider = ({ children }) => {
         }
     }, []);
 
+
+    // Logout user
+    const logout = async () => {
+        await api.post("/auth/logout");
+
+        setUser(null);
+    };
+
     // Run when application starts
     useEffect(() => {
-        let ignore = false;
-
-        const initializeAuth = async () => {
-            try {
-                const response = await api.get("/auth/me");
-
-                if (!ignore) {
-                    setUser(response.data.user);
-                }
-            } catch (error) {
-                if (!ignore) {
-                    console.log("Authentication check failed:", error);
-                    setUser(null);
-                }
-            } finally {
-                if (!ignore) {
-                    setLoading(false);
-                }
-            }
-        };
-
-        initializeAuth();
-
-        return () => {
-            ignore = true;
-        };
-    }, []);
+        checkAuth();
+    }, [checkAuth]);
 
     return (
         <AuthContext.Provider
@@ -56,6 +41,7 @@ const AuthProvider = ({ children }) => {
                 setUser,
                 loading,
                 checkAuth,
+                logout,
             }}
         >
             {children}

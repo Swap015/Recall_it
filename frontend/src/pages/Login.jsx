@@ -1,6 +1,8 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import api from "../services/api";
+import { useAuth } from "../context/useAuth";
 import {
     Brain,
     Search,
@@ -12,10 +14,11 @@ import {
     Eye,
     EyeOff,
 } from "lucide-react";
-import api from "../services/api";
+
 
 function Login() {
     const navigate = useNavigate();
+    const { checkAuth } = useAuth();
 
     const [formData, setFormData] = useState({
         email: "",
@@ -37,6 +40,7 @@ function Login() {
     };
 
     // Handle login
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
@@ -44,12 +48,13 @@ function Login() {
         try {
             setLoading(true);
 
-            const response = await api.post("/auth/login", {
+            await api.post("/auth/login", {
                 email: formData.email.trim().toLowerCase(),
                 password: formData.password,
             });
 
-            console.log(response.data);
+            // Update React authentication state
+            await checkAuth();
 
             navigate("/dashboard");
 
@@ -62,6 +67,7 @@ function Login() {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4 py-10">

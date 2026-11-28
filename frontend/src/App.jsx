@@ -1,27 +1,41 @@
 
-import { Routes, Route, Link } from "react-router";
+import { Routes, Route, Navigate } from "react-router";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
+
 function App() {
   return (
-    <div className="min-h-screen bg-slate-950 text-white p-8">
+    <Routes>
 
-      <nav className="flex gap-6 mb-10">
-        <Link to="/login">Login</Link>
-        <Link to="/register">Register</Link>
-        <Link to="/dashboard">Dashboard</Link>
-      </nav>
-
-      <Routes>
+      {/* Public routes */}
+      <Route element={<PublicRoute />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-      </Routes>
+      </Route>
 
-    </div>
+      {/* Protected routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Route>
+
+      {/* Default route */}
+      <Route
+        path="/"
+        element={<Navigate to="/dashboard" replace />}
+      />
+
+      {/* Unknown routes */}
+      <Route
+        path="*"
+        element={<Navigate to="/" replace />}
+      />
+
+    </Routes>
   );
 }
 

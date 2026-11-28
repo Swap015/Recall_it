@@ -1,11 +1,11 @@
 import { saveMemory, searchMemories } from "../services/memoryService.js";
+import Memory from "../models/Memory.js";
 
 // POST: Create a new memory
 export const createMemory = async (req, res) => {
   try {
     const { text, topic, sourceType } = req.body;
 
-    // Validate input
     if (typeof text !== "string" || !text.trim()) {
       return res.status(400).json({
         success: false,
@@ -13,8 +13,6 @@ export const createMemory = async (req, res) => {
       });
     }
 
-    // Temporary user ID for development.
-    // Later, authentication middleware will provide the real user ID.
     const userId = req.user.userId;
 
     if (!userId) {
@@ -24,7 +22,6 @@ export const createMemory = async (req, res) => {
       });
     }
 
-    // Save memory using our service
     const memory = await saveMemory(text, userId, topic, sourceType);
 
     return res.status(201).json({
@@ -42,13 +39,42 @@ export const createMemory = async (req, res) => {
   }
 };
 
+// GET: Fetch all memories belonging to logged-in user
+export const getAllMemories = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required.",
+      });
+    }
+
+    const memories = await Memory.find({ userId }).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      message: "Memories fetched successfully!",
+      count: memories.length,
+      data: memories,
+    });
+  } catch (error) {
+    console.error("Get memories error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch memories.",
+    });
+  }
+};
+
 // POST: Search existing memories
 export const searchMemory = async (req, res) => {
   try {
     const { query } = req.body;
     const userId = req.user.userId;
 
-    // Validate input
     if (typeof query !== "string" || !query.trim()) {
       return res.status(400).json({
         success: false,
@@ -63,7 +89,6 @@ export const searchMemory = async (req, res) => {
       });
     }
 
-    // Search memories using our service
     const results = await searchMemories(query, userId);
 
     return res.status(200).json({
