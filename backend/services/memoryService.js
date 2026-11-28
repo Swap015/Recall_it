@@ -124,3 +124,31 @@ export const searchMemories = async (query, userId) => {
     throw error;
   }
 };
+
+export const deleteMemory = async (memoryId, userId) => {
+  try {
+    const memory = await Memory.findOne({
+      _id: memoryId,
+      userId,
+    });
+
+    if (!memory) {
+      return null;
+    }
+
+    await qdrant.delete(COLLECTION_NAME, {
+      points: [memory.qdrantPointId],
+      wait: true,
+    });
+
+    await Memory.deleteOne({
+      _id: memoryId,
+      userId,
+    });
+
+    return memory;
+  } catch (error) {
+    console.error("Delete memory service error:", error);
+    throw error;
+  }
+};

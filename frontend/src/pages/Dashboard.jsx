@@ -51,19 +51,22 @@ function Dashboard() {
     {
       name: "Dashboard",
       icon: LayoutDashboard,
-      active: true,
+      path: "/dashboard",
     },
     {
       name: "My Memories",
       icon: Database,
+      path: "/memories",
     },
     {
       name: "AI Chat",
       icon: MessageSquare,
+      path: "/chat",
     },
     {
       name: "Knowledge Graph",
       icon: Network,
+      path: "/knowledge-graph",
     },
   ];
 
@@ -123,18 +126,20 @@ function Dashboard() {
 
             {navigation.map((item) => {
               const Icon = item.icon;
+              const isActive = window.location.pathname === item.path;
 
               return (
-                <div
+                <button
                   key={item.name}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm cursor-pointer transition ${item.active
+                  onClick={() => navigate(item.path)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition ${isActive
                     ? "bg-indigo-600/15 text-indigo-400"
                     : "text-slate-400 hover:bg-slate-800 hover:text-white"
                     }`}
                 >
                   <Icon size={18} />
                   {item.name}
-                </div>
+                </button>
               );
             })}
 
@@ -251,7 +256,7 @@ function Dashboard() {
 
               <div className="flex justify-between items-center">
                 <FileText className="text-indigo-400" size={21} />
-                <ArrowUpRight className="text-slate-600" size={18} />
+                <ArrowUpRight className="text-slate-100" size={18} onClick={() => navigate("/memories")} />
               </div>
 
               <h3 className="text-3xl font-semibold mt-5">
@@ -269,7 +274,7 @@ function Dashboard() {
 
               <div className="flex justify-between items-center">
                 <Network className="text-purple-400" size={21} />
-                <ArrowUpRight className="text-slate-600" size={18} />
+                <ArrowUpRight className="text-slate-100" size={18} />
               </div>
 
               <h3 className="text-3xl font-semibold mt-5">
@@ -287,7 +292,7 @@ function Dashboard() {
 
               <div className="flex justify-between items-center">
                 <Clock className="text-emerald-400" size={21} />
-                <ArrowUpRight className="text-slate-600" size={18} />
+                <ArrowUpRight className="text-slate-100" size={18} />
               </div>
 
               <h3 className="text-3xl font-semibold mt-5">
@@ -341,7 +346,10 @@ function Dashboard() {
                 </p>
               </div>
 
-              <button className="text-sm text-indigo-400 hover:text-indigo-300">
+              <button
+                onClick={() => navigate("/memories")}
+                className="text-sm text-indigo-400 hover:text-indigo-300"
+              >
                 View all
               </button>
 

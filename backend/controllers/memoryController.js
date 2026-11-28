@@ -1,4 +1,8 @@
-import { saveMemory, searchMemories } from "../services/memoryService.js";
+import {
+  saveMemory,
+  searchMemories,
+  deleteMemory,
+} from "../services/memoryService.js";
 import Memory from "../models/Memory.js";
 
 // POST: Create a new memory
@@ -105,3 +109,45 @@ export const searchMemory = async (req, res) => {
     });
   }
 };
+
+// DELETE: Delete a memory belonging to the logged-in user
+export const removeMemory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.userId;
+
+    // Validate MongoDB ID
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid memory ID.",
+      });
+    }
+
+    // Delete memory using service
+    const deletedMemory = await deleteMemory(id, userId);
+
+    // Memory not found or doesn't belong to user
+    if (!deletedMemory) {
+      return res.status(404).json({
+        success: false,
+        message: "Memory not found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Memory deleted successfully!",
+    });
+  } catch (error) {
+    console.error("Delete memory controller error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete memory.",
+    });
+  }
+};
+
+
+
