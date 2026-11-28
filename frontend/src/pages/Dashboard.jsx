@@ -19,6 +19,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 
+import AddMemoryModal from "../components/AddMemoryModal";
 import { useAuth } from "../context/useAuth";
 
 
@@ -28,6 +29,7 @@ function Dashboard() {
   const [memories, setMemories] = useState([]);
   const [loadingMemories, setLoadingMemories] = useState(true);
   const [memoryError, setMemoryError] = useState("");
+  const [isAddMemoryOpen, setIsAddMemoryOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -36,6 +38,13 @@ function Dashboard() {
     } catch (error) {
       console.error("Logout failed:", error);
     }
+  };
+
+  const handleMemoryCreated = (newMemory) => {
+    setMemories((prevMemories) => [
+      newMemory,
+      ...prevMemories,
+    ]);
   };
 
   const navigation = [
@@ -57,6 +66,7 @@ function Dashboard() {
       icon: Network,
     },
   ];
+
 
 
   useEffect(() => {
@@ -223,7 +233,10 @@ function Dashboard() {
               </p>
             </div>
 
-            <button className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 rounded-lg text-sm font-medium transition">
+            <button
+              onClick={() => setIsAddMemoryOpen(true)}
+              className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 rounded-lg text-sm font-medium transition"
+            >
               <Plus size={17} />
               Add Memory
             </button>
@@ -414,7 +427,11 @@ function Dashboard() {
         </div>
 
       </main>
-
+      <AddMemoryModal
+        isOpen={isAddMemoryOpen}
+        onClose={() => setIsAddMemoryOpen(false)}
+        onMemoryCreated={handleMemoryCreated}
+      />
     </div>
   );
 }

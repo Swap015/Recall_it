@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
+import Memories from "./pages/Memories";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
       {/* Protected routes */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/memories" element={<Memories />} />
       </Route>
 
       {/* Default route */}

@@ -12,7 +12,7 @@ const AuthProvider = ({ children }) => {
         try {
             const response = await api.get("/auth/me");
             setUser(response.data.user);
-            console.log("loginnnnnn: ", response.data.user)
+
         } catch (error) {
             console.log("Authentication check failed:", error);
             setUser(null);
